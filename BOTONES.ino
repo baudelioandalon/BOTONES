@@ -255,6 +255,7 @@ int readBotones(){
       pantalla("boton 7",0,0,true,true,true);
       botonPresionado = 7;
     delay(50);
+    
   }else if(boton.digitalRead(P7) == HIGH){
       lcd.clear(); //con esto limpias pantalla
       lcd.setCursor(0, 0);    //Columna, Fila
