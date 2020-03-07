@@ -7,10 +7,10 @@ LiquidCrystal_I2C lcd(0x3F, 20, 4);
 PCF8574 boton(0x24);  //ARRIBA
 PCF8574 expander2(0x20);  //ABAJO
 
-/***    NO EXCEDER LOS 18 CARACTERES    ***/
+/***    NO EXCEDER LOS 20 CARACTERES    ***/
 /***    SE COMPROBARAN ANTES DE INICIAR EL SISTEMA    ***/
 
-String titulos[] = {
+String titulos[10] = {
 "PINOL",
 "CLORO",
 "ARIEL LIQUIDO",
@@ -23,18 +23,6 @@ String titulos[] = {
 "DETERGENTE LIQUIDO"};
 
 
-//
-//String elementoTexto1 = "PINOL"; //5 Caracteres
-//String elementoTexto2 = "CLORO"; //5 Caracteres 
-//String elementoTexto3 = "ARIEL LIQUIDO"; //13 Caracteres 
-//String elementoTexto4 = "FABULOSO"; //8 Caracteres 
-//String elementoTexto5 = "SUAVITEL AZUL"; //13 Caracteres 
-//String elementoTexto6 = "SUAVITEL AMARILLO"; //17 Caracteres 
-//String elementoTexto7 = "SUAVITEL ECONOMICO"; //18 Caracteres 
-//String elementoTexto8 = "AXION"; //5 Caracteres 
-//String elementoTexto9 = "DESENGRASANTE"; //13 Caracteres 
-//String elementoTexto10 = ; //18 Caracteres 
-
 #define B1  P0   //Boton 1
 #define B2  P1   //Boton 2
 #define B3  P2   //Boton 3
@@ -43,8 +31,8 @@ String titulos[] = {
 #define B6  P5   //Boton 6
 #define B7  P6   //Boton 7
 #define B8  P7   //Boton 8
-#define B9 36    //Boton 9
-#define B10 39   //Boton 10
+#define B9 39    //Boton 9
+#define B10 36   //Boton 10
 
 
 #define M1  0  //Motor 1
@@ -71,6 +59,7 @@ const int LCoin = 4;  //Pin entrada de Lector de monedas
 
 
 void setup() {  
+
   Wire.begin(SDA_PIN,SCL_PIN);
   Serial.begin(115200);
   
@@ -108,38 +97,66 @@ void setup() {
   pinMode(M9,OUTPUT);
   pinMode(M10,OUTPUT);
 
+  ifClean(true);
 
-  //            String    int     int       boolean       boolean       boolean
+  //            String    int     int       bool            bool          bool
   //Parametros   texto, columna, fila, limpiarPantalla, centrarColumna, centrarFila
   pantalla("COMPROBANDO",0,0,true,true,true);
-  ifClean(true);
+  
+  delay(1000);
+  
+  if(comprobarLongitudTexto()){
+    pantalla("HAY UN ERROR",0,1,true,true,false);
+    pantalla("REAJUSTA LOS NOMBRES",0,2,false,true,false);
+ 
+    while(10>1){
+      delay(1000);
+    }
+  }else{
+    msj("---------------");
+    msj("TODO CORRECTO");
+    msj("---------------");
+    pantalla("TODO CORRECTO",0,0,true,true,true);
+    delay(1500);
+    ifClean(true);
+  }
   
 
 }
 
 
-void pantalla(String texto, int columna, int fila, boolean limpiarPantalla, boolean centeredColumna, boolean centeredFila){
+void pantalla(String texto, int columna, int fila, bool limpiarPantalla, bool centeredColumna, bool centeredFila){
 
-  if(sizeof(texto) > 20){
-    delay(100);
+  if(texto.length() > 20){
+    
     ifClean(true);
     lcd.setCursor(ifCenteredColumn("NOMBRE MUY LARGO", true, 0), 1);
     msj("NOMBRE MUY LARGO");
     msj(texto);
-    lcd.print(texto);
-    return;
-  }else if(sizeof(texto) == 0){
+    lcd.print("NOMBRE MUY LARGO");
+    msj(texto);
+    while(10>1){
+      delay(1000);
+    }
+    
+  }else if(texto.length() == 0){
     delay(100);
     ifClean(true);
     lcd.setCursor(ifCenteredColumn("NOMBRE VACIO", true, 2), ifCenteredRow(centeredFila, fila));
     lcd.print(texto);
     msj("NOMBRE VACIO");
     msj(texto);
-    return;
+
+    //Habilitar este while si quieres que no continue si dejas un nombre vacio
+    /* while(10>1){
+      delay(1000);
+    } */
   }else{
+
     ifClean(limpiarPantalla);
     lcd.setCursor(ifCenteredColumn(texto, centeredColumna, columna), ifCenteredRow(centeredFila, fila));
     lcd.print(texto);
+    
   }
     
 
@@ -148,7 +165,7 @@ void pantalla(String texto, int columna, int fila, boolean limpiarPantalla, bool
 
 
 /* Centrar fila */
-int ifCenteredRow(boolean centered, int fila){
+int ifCenteredRow(bool centered, int fila){
 
 int filaNueva = 0;
 
@@ -163,15 +180,21 @@ return filaNueva;
 }//fin ifCenteredRow
 
 /* Centrar columna */
-int ifCenteredColumn(String texto, boolean centered, int columna){
+  int ifCenteredColumn(String texto, bool centered, int columna){
   int nuevaColumnaInicial = 0;
 
-if(centered){
+ if(centered){
   /******   Comprobar tamaño para calcular acomodo de letras  ******/
-  if(sizeof(texto) == 20){
+  if(texto.length() == 20){
     nuevaColumnaInicial  = 0;
   }else{
-    nuevaColumnaInicial  = (20 - sizeof(texto))/2;
+    nuevaColumnaInicial  = (20 - texto.length())/2;
+    String spa = "espacio: " + String(nuevaColumnaInicial);
+    String tex = "texto: " + String(texto);
+    String tam = "tamaño: " + String(texto.length());
+    msj(spa);
+    msj(tex);
+    msj(tam);
   }
 }else{
   nuevaColumnaInicial = columna;
@@ -183,7 +206,7 @@ if(centered){
 
 
 /* Limpiar pantalla */
-void ifClean(boolean ifCleanValue){
+void ifClean(bool ifCleanValue){
 
 if(ifCleanValue){
     lcd.clear();
@@ -193,7 +216,9 @@ if(ifCleanValue){
 
 void loop() {
 
-if(BReset == HIGH){
+  readBotones();
+
+/* if(BReset == HIGH){
   
   while (10>1)
   {
@@ -205,9 +230,9 @@ if(BReset == HIGH){
 
 }else{
 
-}
+} */
 
-}
+}//fin loop
 
 
 int readBotones(){
@@ -215,63 +240,44 @@ int readBotones(){
   int botonPresionado = 0;
   
   if(boton.digitalRead(P0) == HIGH){
-      lcd.clear(); //con esto limpias pantalla
-      lcd.setCursor(0, 0);    //Columna, Fila
-      lcd.print("boton 1");
+      pantalla("boton 1",0,0,true,true,true);
       botonPresionado = 1;
     delay(50);
   }else if(boton.digitalRead(P1) == HIGH){
-      lcd.clear(); //con esto limpias pantalla
-      lcd.setCursor(0, 0);    //Columna, Fila
-      lcd.print("boton 2");
+      pantalla("boton 2",0,0,true,true,true);
       botonPresionado = 2;
     delay(50);
   }else if(boton.digitalRead(P2) == HIGH){
-      lcd.clear(); //con esto limpias pantalla
-      lcd.setCursor(0, 0);    //Columna, Fila
-      lcd.print("boton 3");
+      pantalla("boton 3",0,0,true,true,true);
       botonPresionado = 3;
     delay(50);
     
   }else if(boton.digitalRead(P3) == HIGH){
-      lcd.clear(); //con esto limpias pantalla
-      lcd.setCursor(0, 0);    //Columna, Fila
-      lcd.print("boton 4");
+      pantalla("boton 4",0,0,true,true,true);
       botonPresionado = 4;
     delay(50);
   }else if(boton.digitalRead(P4) == HIGH){
-      lcd.clear(); //con esto limpias pantalla
-      lcd.setCursor(0, 0);    //Columna, Fila
-      lcd.print("boton 5");
+      pantalla("boton 5",0,0,true,true,true);
       botonPresionado = 5;
     delay(50);
   }else if(boton.digitalRead(P5) == HIGH){
-      lcd.clear(); //con esto limpias pantalla
-      lcd.setCursor(0, 0);    //Columna, Fila
-      lcd.print("boton 6");
+      pantalla("boton 6",0,0,true,true,true);
       botonPresionado = 6;
     delay(50);
   }else if(boton.digitalRead(P6) == HIGH){
       pantalla("boton 7",0,0,true,true,true);
       botonPresionado = 7;
     delay(50);
-    
   }else if(boton.digitalRead(P7) == HIGH){
-      lcd.clear(); //con esto limpias pantalla
-      lcd.setCursor(0, 0);    //Columna, Fila
-      lcd.print("boton 8");
+      pantalla("boton 8",0,0,true,true,true);
       botonPresionado = 8;
     delay(50);
   }else if(digitalRead(B9) == HIGH){
-      lcd.clear(); //con esto limpias pantalla
-      lcd.setCursor(0, 0);    //Columna, Fila
-      lcd.print("boton 9");
+      pantalla("boton 9",0,0,true,true,true);
       botonPresionado = 9;
     delay(50);
   }else if(digitalRead(B10) == HIGH){
-      lcd.clear(); //con esto limpias pantalla
-      lcd.setCursor(0, 0);    //Columna, Fila
-      lcd.print("boton 10");
+      pantalla("boton 10",0,0,true,true,true);
       botonPresionado = 10;
     delay(50);
   }
@@ -285,14 +291,25 @@ void msj(String mensaje){
 }
 
 
-boolean comprobarLongitudTexto(){
-  boolean correcto = false;
+bool comprobarLongitudTexto(){
+  
+  for(int x = 0; x < 10; x++){
 
-  for(int x = 0; x < sizeof(titulos); x++){
-    if(sizeof(titulos[x])){
-      correcto = true;
+    if(titulos[x].length() > 20){
+      msj("--------------------");
+      msj("AQUI ESTA EL ERROR");
+      msj("--------------------");
+      msj(titulos[x]);
+      String texto = "POSICION: " + String(x + 1);
+      msj(texto);
+      msj("--------------------");
+      return true;
+      break;
+    }else{
+      
     }
+    
   }
 
-return correcto;
-}
+  return false;
+}//fin comprobarLongitudTexto
