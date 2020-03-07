@@ -45,7 +45,7 @@ String titulos[10] = {
 #define M8  7  //Motor 8
 #define M9  32  //Motor 10
 #define M10 33  //Motor 10
-#define BReset 34  //Boton de reset
+#define BReset 18  //Boton de reset
 #define BCancelar 35 //Boton de cancelar
 
 const int EncendidoLCoin = 16;  //Funciona para encender el Lector de monedas
@@ -57,6 +57,7 @@ const int SCL_PIN =  22;    //Pin de comunicacion SCL
 const int HCoin = 13; //Pin entrada de Hopper
 const int LCoin = 4;  //Pin entrada de Lector de monedas
 
+String ultimoTextoRow = "";
 
 void setup() {  
 
@@ -127,6 +128,7 @@ void setup() {
 
 void pantalla(String texto, int columna, int fila, bool limpiarPantalla, bool centeredColumna, bool centeredFila){
 
+  msj(texto);
   if(texto.length() > 20){
     
     ifClean(true);
@@ -142,7 +144,7 @@ void pantalla(String texto, int columna, int fila, bool limpiarPantalla, bool ce
   }else if(texto.length() == 0){
     delay(100);
     ifClean(true);
-    lcd.setCursor(ifCenteredColumn("NOMBRE VACIO", true, 2), ifCenteredRow(centeredFila, fila));
+    lcd.setCursor(ifCenteredColumn("NOMBRE VACIO", true, 2), ifCenteredRow(texto, centeredFila, fila));
     lcd.print(texto);
     msj("NOMBRE VACIO");
     msj(texto);
@@ -154,8 +156,9 @@ void pantalla(String texto, int columna, int fila, bool limpiarPantalla, bool ce
   }else{
 
     ifClean(limpiarPantalla);
-    lcd.setCursor(ifCenteredColumn(texto, centeredColumna, columna), ifCenteredRow(centeredFila, fila));
+    lcd.setCursor(ifCenteredColumn(texto, centeredColumna, columna), ifCenteredRow(texto,centeredFila, fila));
     lcd.print(texto);
+    ultimoTextoRow = texto;
     
   }
     
@@ -165,13 +168,17 @@ void pantalla(String texto, int columna, int fila, bool limpiarPantalla, bool ce
 
 
 /* Centrar fila */
-int ifCenteredRow(bool centered, int fila){
+int ifCenteredRow(String texto, bool centered, int fila){
 
 int filaNueva = 0;
 
 if(centered){
   filaNueva = 1;
 }else{
+  if(ultimoTextoRow.length() > texto.length()){
+    lcd.setCursor(0,fila);
+    lcd.print("                    ");
+  }
   filaNueva = fila;
 }
 
@@ -180,7 +187,7 @@ return filaNueva;
 }//fin ifCenteredRow
 
 /* Centrar columna */
-  int ifCenteredColumn(String texto, bool centered, int columna){
+int ifCenteredColumn(String texto, bool centered, int columna){
   int nuevaColumnaInicial = 0;
 
  if(centered){
@@ -189,12 +196,12 @@ return filaNueva;
     nuevaColumnaInicial  = 0;
   }else{
     nuevaColumnaInicial  = (20 - texto.length())/2;
-    String spa = "espacio: " + String(nuevaColumnaInicial);
+/*     String spa = "espacio: " + String(nuevaColumnaInicial);
     String tex = "texto: " + String(texto);
     String tam = "tamaño: " + String(texto.length());
     msj(spa);
     msj(tex);
-    msj(tam);
+    msj(tam); */
   }
 }else{
   nuevaColumnaInicial = columna;
@@ -216,21 +223,34 @@ if(ifCleanValue){
 
 void loop() {
 
-  readBotones();
-
-/* if(BReset == HIGH){
+if(digitalRead(BReset) == HIGH){
+  pantalla("MODO CONFIGURACION",0,1,true,true,false);
+  pantalla("ACTIVADO",0,2,false,true,false);
+  delay(2000);
+  pantalla("MODO CONFIGURACION",0,0,true,true,false);
+  pantalla("SELECCIONA UN BOTON",0,1,false,true,false);
+  delay(1000);
   
-  while (10>1)
-  {
-    if(readBotones() == 1){
+  while (10>1){
+
+    int pulsado = 20;
+    pulsado = (readBotones() - 1);
+    
+    if(pulsado != 19){
+      String texto = "";
+      texto = "BOTON PULSADO " + String(pulsado + 1);
+      pantalla(texto,0,2,false,true,false);
 
     }
+    
   }
   
-
 }else{
+  while(10>1){
+    readBotones();
+  }
 
-} */
+}
 
 }//fin loop
 
@@ -240,49 +260,48 @@ int readBotones(){
   int botonPresionado = 0;
   
   if(boton.digitalRead(P0) == HIGH){
-      pantalla("boton 1",0,0,true,true,true);
+      //pantalla("boton 1",0,0,true,true,true);
       botonPresionado = 1;
-    delay(50);
+      return botonPresionado;
   }else if(boton.digitalRead(P1) == HIGH){
-      pantalla("boton 2",0,0,true,true,true);
+      //pantalla("boton 2",0,0,true,true,true);
       botonPresionado = 2;
-    delay(50);
+      return botonPresionado;
   }else if(boton.digitalRead(P2) == HIGH){
-      pantalla("boton 3",0,0,true,true,true);
+      //pantalla("boton 3",0,0,true,true,true);
       botonPresionado = 3;
-    delay(50);
-    
+      return botonPresionado;
   }else if(boton.digitalRead(P3) == HIGH){
-      pantalla("boton 4",0,0,true,true,true);
+      //pantalla("boton 4",0,0,true,true,true);
       botonPresionado = 4;
-    delay(50);
+      return botonPresionado;
   }else if(boton.digitalRead(P4) == HIGH){
-      pantalla("boton 5",0,0,true,true,true);
+      //pantalla("boton 5",0,0,true,true,true);
       botonPresionado = 5;
-    delay(50);
+      return botonPresionado;
   }else if(boton.digitalRead(P5) == HIGH){
-      pantalla("boton 6",0,0,true,true,true);
+      //pantalla("boton 6",0,0,true,true,true);
       botonPresionado = 6;
-    delay(50);
+      return botonPresionado;
   }else if(boton.digitalRead(P6) == HIGH){
-      pantalla("boton 7",0,0,true,true,true);
+      //pantalla("boton 7",0,0,true,true,true);
       botonPresionado = 7;
-    delay(50);
+      return botonPresionado;
   }else if(boton.digitalRead(P7) == HIGH){
-      pantalla("boton 8",0,0,true,true,true);
+      //pantalla("boton 8",0,0,true,true,true);
       botonPresionado = 8;
-    delay(50);
+      return botonPresionado;
   }else if(digitalRead(B9) == HIGH){
-      pantalla("boton 9",0,0,true,true,true);
+      //pantalla("boton 9",0,0,true,true,true);
       botonPresionado = 9;
-    delay(50);
+      return botonPresionado;
   }else if(digitalRead(B10) == HIGH){
-      pantalla("boton 10",0,0,true,true,true);
+      //pantalla("boton 10",0,0,true,true,true);
       botonPresionado = 10;
-    delay(50);
+      return botonPresionado;
   }
 
-  return botonPresionado;
+  return 20;
 }
 
 
