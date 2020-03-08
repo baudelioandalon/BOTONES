@@ -58,6 +58,7 @@ const int HCoin = 13; //Pin entrada de Hopper
 const int LCoin = 4;  //Pin entrada de Lector de monedas
 
 String ultimoTextoRow = "";
+int temporalPulsado = 20;
 
 void setup() {  
 
@@ -66,6 +67,7 @@ void setup() {
   
   lcd.init();                 
   lcd.backlight();
+  
 
   //Habilitar boton Reset
   pinMode(BReset, INPUT_PULLUP);
@@ -240,8 +242,40 @@ if(digitalRead(BReset) == HIGH){
       String texto = "";
       texto = "BOTON PULSADO " + String(pulsado + 1);
       pantalla(texto,0,2,false,true,false);
+      pantalla(titulos[pulsado],0,3,false,true,false);
+      if(temporalPulsado != pulsado){
+        temporalPulsado = pulsado;
+      }
+      else{
+        pantalla("PRESIONA OTRA VEZ",0,0,true,true,false);
+        pantalla("PARA RESETEAR",0,1,false,true,false);
+        pantalla(titulos[pulsado],0,3,false,true,false);
+        while(10>1){
 
+          int cancelar = 20;
+          cancelar = readConfirmarCancelar();
+
+          if(cancelar == 11){
+            pantalla("CANCELADO",0,0,true,true,true);
+            temporalPulsado = 20;
+            delay(2000);
+            break;
+          }else if(cancelar == (pulsado + 1)){
+            pantalla(titulos[pulsado],0,0,true,true,false);
+            pantalla("RESETEADO",0,1,false,true,false);
+            temporalPulsado = 20;
+            delay(2000);
+            break;
+          }
+          
+        }
+        //este break es para salir del while si se cancela
+        break;
+      }
+      
     }
+    
+
     
   }
   
@@ -262,48 +296,122 @@ int readBotones(){
   if(boton.digitalRead(P0) == HIGH){
       //pantalla("boton 1",0,0,true,true,true);
       botonPresionado = 1;
+      delay(100);
       return botonPresionado;
   }else if(boton.digitalRead(P1) == HIGH){
       //pantalla("boton 2",0,0,true,true,true);
       botonPresionado = 2;
+      delay(100);
       return botonPresionado;
   }else if(boton.digitalRead(P2) == HIGH){
       //pantalla("boton 3",0,0,true,true,true);
       botonPresionado = 3;
+      delay(100);
       return botonPresionado;
   }else if(boton.digitalRead(P3) == HIGH){
       //pantalla("boton 4",0,0,true,true,true);
       botonPresionado = 4;
+      delay(100);
       return botonPresionado;
   }else if(boton.digitalRead(P4) == HIGH){
       //pantalla("boton 5",0,0,true,true,true);
       botonPresionado = 5;
+      delay(100);
       return botonPresionado;
   }else if(boton.digitalRead(P5) == HIGH){
       //pantalla("boton 6",0,0,true,true,true);
       botonPresionado = 6;
+      delay(100);
       return botonPresionado;
   }else if(boton.digitalRead(P6) == HIGH){
       //pantalla("boton 7",0,0,true,true,true);
       botonPresionado = 7;
+      delay(100);
       return botonPresionado;
   }else if(boton.digitalRead(P7) == HIGH){
       //pantalla("boton 8",0,0,true,true,true);
       botonPresionado = 8;
+      delay(100);
       return botonPresionado;
   }else if(digitalRead(B9) == HIGH){
       //pantalla("boton 9",0,0,true,true,true);
       botonPresionado = 9;
+      delay(100);
       return botonPresionado;
   }else if(digitalRead(B10) == HIGH){
       //pantalla("boton 10",0,0,true,true,true);
       botonPresionado = 10;
+      delay(100);
       return botonPresionado;
   }
 
   return 20;
 }
 
+
+int readConfirmarCancelar(){
+ 
+  int botonPresionado = 0;
+  
+  if(boton.digitalRead(P0) == HIGH){
+      //pantalla("boton 1",0,0,true,true,true);
+      botonPresionado = 1;
+      delay(100);
+      return botonPresionado;
+  }else if(boton.digitalRead(P1) == HIGH){
+      //pantalla("boton 2",0,0,true,true,true);
+      botonPresionado = 2;
+      delay(100);
+      return botonPresionado;
+  }else if(boton.digitalRead(P2) == HIGH){
+      //pantalla("boton 3",0,0,true,true,true);
+      botonPresionado = 3;
+      delay(100);
+      return botonPresionado;
+  }else if(boton.digitalRead(P3) == HIGH){
+      //pantalla("boton 4",0,0,true,true,true);
+      botonPresionado = 4;
+      delay(100);
+      return botonPresionado;
+  }else if(boton.digitalRead(P4) == HIGH){
+      //pantalla("boton 5",0,0,true,true,true);
+      botonPresionado = 5;
+      delay(100);
+      return botonPresionado;
+  }else if(boton.digitalRead(P5) == HIGH){
+      //pantalla("boton 6",0,0,true,true,true);
+      botonPresionado = 6;
+      delay(100);
+      return botonPresionado;
+  }else if(boton.digitalRead(P6) == HIGH){
+      //pantalla("boton 7",0,0,true,true,true);
+      botonPresionado = 7;
+      delay(100);
+      return botonPresionado;
+  }else if(boton.digitalRead(P7) == HIGH){
+      //pantalla("boton 8",0,0,true,true,true);
+      botonPresionado = 8;
+      delay(100);
+      return botonPresionado;
+  }else if(digitalRead(B9) == HIGH){
+      //pantalla("boton 9",0,0,true,true,true);
+      botonPresionado = 9;
+      delay(100);
+      return botonPresionado;
+  }else if(digitalRead(B10) == HIGH){
+      //pantalla("boton 10",0,0,true,true,true);
+      botonPresionado = 10;
+      delay(100);
+      return botonPresionado;
+  }else if(digitalRead(BCancelar) == HIGH){
+      //pantalla("boton 10",0,0,true,true,true);
+      botonPresionado = 11;
+      delay(100);
+      return botonPresionado;
+  }
+
+  return 20;
+}
 
 void msj(String mensaje){
   Serial.println(mensaje);
